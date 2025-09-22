@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RailTrack Insight - QR Code Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            min-height: 80vh;
+        }
+
+        .sidebar {
+            background: #f8f9fa;
+            width: 280px;
+            padding: 30px 0;
+            border-right: 1px solid #e9ecef;
+        }
+
+        .logo {
+            padding: 0 30px 40px;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 20px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            color: #495057;
+            font-weight: 600;
+        }
+
+        .logo p {
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 30px;
+            color: #6c757d;
+            text-decoration: none;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item.active {
+            background: #4285f4;
+            color: white;
+            border-radius: 0 25px 25px 0;
+            margin-right: 20px;
+        }
+
+        .nav-item:hover:not(.active) {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .nav-icon {
+            margin-right: 15px;
+            font-size: 18px;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            gap: 40px;
+        }
+
+        .form-section {
+            flex: 1;
+        }
+
+        .qr-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .section-title {
+            font-size: 28px;
+            color: #495057;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .section-subtitle {
+            color: #6c757d;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #4285f4;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+        }
+
+        .date-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .create-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .create-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(66, 133, 244, 0.3);
+        }
+
+        .create-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .qr-placeholder {
+            width: 300px;
+            height: 300px;
+            border: 3px dashed #dee2e6;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .qr-code-container {
+            text-align: center;
+            animation: fadeInScale 0.5s ease-out;
+        }
+
+        .qr-code-image {
+            width: 300px;
+            height: 300px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .qr-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .qr-info h3 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .qr-info p {
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .qr-url {
+            color: #4285f4;
+            word-break: break-all;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .loading {
+            display: none;
+        }
+
+        .loading.show {
+            display: flex;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e9ecef;
+            border-top: 4px solid #4285f4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                margin: 10px;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 20px 0;
+            }
+            
+            .main-content {
+                flex-direction: column;
+                padding: 20px;
+                gap: 20px;
+            }
+            
+            .date-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="logo">
+                <h1>RailTrack Insight</h1>
+                <p>Railway Track Fittings Management System</p>
+            </div>
+            <a href="#" class="nav-item active">
+                <span class="nav-icon">🎯</span>
+                Generate QR
+            </a>
+            <a href="#" class="nav-item">
+                <span class="nav-icon">📊</span>
+                Overview
+            </a>
+            <a href="#" class="nav-item">
+                <span class="nav-icon">📦</span>
+                Inventory
+            </a>
+            <a href="#" class="nav-item">
+                <span class="nav-icon">📈</span>
+                Analytics
+            </a>
+            <a href="#" class="nav-item">
+                <span class="nav-icon">👥</span>
+                Users
+            </a>
+        </nav>
+
+        <main class="main-content">
+            <section class="form-section">
+                <h1 class="section-title">QR Code Generator</h1>
+                <p class="section-subtitle">Generate QR codes for railway track fittings</p>
+
+                <div id="message-container"></div>
+
+                <form id="qr-form">
+                    <div class="form-group">
+                        <label class="form-label">Vendor Name *</label>
+                        <input type="text" id="manufacturer-name" class="form-input" placeholder="Jack Samuel" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Lot Number *</label>
+                        <input type="text" id="lot-number" class="form-input" placeholder="23-114-254/89" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Item Type *</label>
+                        <select id="item-type" class="form-select" required>
+                            <option value="">Select Item Type</option>
+                            <option value="Rail Liner">Rail Liner</option>
+                            <option value="Rails">Rails</option>
+                            <option value="Rail Clips">Rail Clips</option>
+                            <option value="Rail Fasteners">Rail Fasteners</option>
+                            <option value="Fish Plates">Fish Plates</option>
+                            <option value="Bolts and Nuts">Bolts and Nuts</option>
+                            <option value="Rail Pads">Rail Pads</option>
+                            <option value="Sleepers/Ties">Sleepers/Ties</option>
+                            <option value="Ballast">Ballast</option>
+                            <option value="Spikes">Spikes</option>
+                            <option value="Tie Plates">Tie Plates</option>
+                            <option value="Rail Anchors">Rail Anchors</option>
+                            <option value="Expansion Joints">Expansion Joints</option>
+                            <option value="Switches/Points">Switches/Points</option>
+                            <option value="Crossings">Crossings</option>
+                            <option value="Signal Equipment">Signal Equipment</option>
+                            <option value="Insulators">Insulators</option>
+                        </select>
+                    </div>
+
+                    <div class="date-row">
+                        <div class="form-group">
+                            <label class="form-label">Manufacture Date</label>
+                            <input type="date" id="manufacture-date" class="form-input" value="2025-08-24" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Supply Date</label>
+                            <input type="date" id="shipping-date" class="form-input" value="2025-08-30" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Warranty Period</label>
+                        <select id="warranty-period" class="form-select" required>
+                            <option value="">Select Warranty Period</option>
+                            <option value="12 months">12 months</option>
+                            <option value="24 months">24 months</option>
+                            <option value="36 months">36 months</option>
+                            <option value="48 months">48 months</option>
+                            <option value="60 months">60 months</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="create-btn" id="create-btn">
+                        <span class="btn-text">Generate QR Code</span>
+                        <div class="loading">
+                            <div class="spinner"></div>
+                        </div>
+                    </button>
+                </form>
+            </section>
+
+            <section class="qr-section">
+                <h2 class="section-title">Generated QR Code</h2>
+                <div id="qr-placeholder" class="qr-placeholder">
+                    <div style="font-size: 48px; margin-bottom: 20px;">📱</div>
+                    <div>Fill out the form to generate a QR code</div>
+                </div>
+                <div id="qr-result" style="display: none;"></div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const form = document.getElementById('qr-form');
+        const createBtn = document.getElementById('create-btn');
+        const messageContainer = document.getElementById('message-container');
+        const qrPlaceholder = document.getElementById('qr-placeholder');
+        const qrResult = document.getElementById('qr-result');
+
+        function showMessage(message, type = 'error') {
+            messageContainer.innerHTML = `<div class="${type}">${message}</div>`;
+            setTimeout(() => {
+                messageContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        function setLoading(loading) {
+            const btnText = createBtn.querySelector('.btn-text');
+            const loadingSpinner = createBtn.querySelector('.loading');
+            
+            if (loading) {
+                btnText.style.display = 'none';
+                loadingSpinner.classList.add('show');
+                createBtn.disabled = true;
+            } else {
+                btnText.style.display = 'inline';
+                loadingSpinner.classList.remove('show');
+                createBtn.disabled = false;
+            }
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            setLoading(true);
+            
+            const formData = {
+                manufacturer_name: document.getElementById('manufacturer-name').value,
+                lot_number: document.getElementById('lot-number').value,
+                item_type: document.getElementById('item-type').value,
+                manufacture_date: document.getElementById('manufacture-date').value,
+                shipping_date: document.getElementById('shipping-date').value,
+                warranty_period: document.getElementById('warranty-period').value
+            };
+
+            try {
+                const response = await fetch('/api/create-qr', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage('QR code generated successfully!', 'success');
+                    
+                    // Show QR code
+                    qrPlaceholder.style.display = 'none';
+                    qrResult.style.display = 'block';
+                    qrResult.innerHTML = `
+                        <div class="qr-code-container">
+                            <img src="${result.qr_code}" alt="QR Code" class="qr-code-image">
+                            <div class="qr-info">
+                                <h3>QR Code Details</h3>
+                                <p><strong>Lot Number:</strong> ${formData.lot_number}</p>
+                                <p><strong>Item Type:</strong> ${formData.item_type}</p>
+                                <p><strong>Manufacturer:</strong> ${formData.manufacturer_name}</p>
+                                <p><strong>Scan URL:</strong></p>
+                                <div class="qr-url">${result.details_url}</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    showMessage(result.error || 'Failed to generate QR code');
+                }
+            } catch (error) {
+                showMessage('Network error: ' + error.message);
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // Reset QR display when form is modified
+        form.addEventListener('input', () => {
+            if (qrResult.style.display !== 'none') {
+                qrResult.style.display = 'none';
+                qrPlaceholder.style.display = 'flex';
+            }
+        });
+    </script>
+</body>
+</html>
