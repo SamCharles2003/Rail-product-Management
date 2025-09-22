@@ -1,0 +1,6 @@
+# Flask web framework
+Flask
+gunicorn
+logging
+google-generativeai
+flask-cors
