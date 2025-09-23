@@ -2,5 +2,6 @@
 Flask
 gunicorn
 logging
-google-generativeai
 flask-cors
+qrcode[pil]
+pillow
