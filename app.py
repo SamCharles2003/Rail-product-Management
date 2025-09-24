@@ -37,6 +37,7 @@ def home():
 @app.route('/api/create-qr', methods=['POST'])
 def create_qr():
     try:
+        global fittings_data
         data = request.get_json()
         
         # Validate required fields
@@ -96,6 +97,7 @@ def create_qr():
 
 @app.route('/details/<lot_number>')
 def view_details(lot_number):
+    global fittings_data
     if lot_number not in fittings_data:
         return render_template('error.html', message="Item not found"), 404
     
