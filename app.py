@@ -101,7 +101,7 @@ def view_details(lot_number):
     if lot_number not in fittings_data:
         return render_template('error.html', message="Item not found"), 404
     
-    item_data = fittings_data[lot_number]
+    item_data = fittings_data.get(lot_number)
     return render_template('details.html', data=item_data)
 
 @app.route('/api/all-items')
