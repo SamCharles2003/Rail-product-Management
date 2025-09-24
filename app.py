@@ -8,7 +8,13 @@ import json
 app = Flask(__name__)
 
 # In-memory storage (use database in production)
-fittings_data = {}
+fittings_data = {'1234567890': {'manufacturer_name': 'Sam Charles', 
+                  'lot_number': '1234567890',
+                  'item_type': 'Switches/Points',
+                  'manufacture_date': '2025-08-24', 
+                  'shipping_date': '2025-08-30', 
+                  'warranty_period': '12 months', 
+                  'created_at': '2025-09-24T18:25:39.505078'}}
 
 # Railway track fittings list
 RAILWAY_FITTINGS = [
@@ -66,6 +72,7 @@ def create_qr():
         # Generate QR code URL
         details_url = f"{request.host_url}details/{lot_number}"
         
+   
         # Create QR code
         qr = qrcode.QRCode(
             version=1,
@@ -98,6 +105,7 @@ def create_qr():
 @app.route('/details/<lot_number>')
 def view_details(lot_number):
     global fittings_data
+ 
     if lot_number not in fittings_data:
         return render_template('error.html', message="Item not found"), 404
     
@@ -109,4 +117,4 @@ def get_all_items():
     return jsonify(fittings_data)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True,host='0.0.0.0',port=5000)
